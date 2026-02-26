@@ -90,7 +90,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>SOHO CORBETT RESORT</h1>
+        <h1>{{ $type }}</h1>
         <div>Vill. Dharampur, Chunakhan, P.O. Bailpokhara</div>
         <div>Ranmagar (Nainital) Uttarakhand</div>
         <div>Mob. +9536338199</div>

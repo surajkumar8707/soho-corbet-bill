@@ -290,9 +290,14 @@ class BillController extends Controller
     /**
      * Print bill view
      */
-    public function print(Bill $bill)
+    public function print(Bill $bill, $type_corbett)
     {
+        if ($type_corbett == "SOHO CORBETT RESORT") {
+            $type = $type_corbett;
+        } else {
+            $type = "POOL & COTTAGES";
+        }
         $settings = $this->settings ?? Setting::first();
-        return view('admin.bills.print', compact('bill', 'settings'));
+        return view('admin.bills.print', compact('bill', 'settings', 'type'));
     }
 }

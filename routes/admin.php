@@ -64,5 +64,5 @@ Route::middleware('role:admin')->group(function () {
     Route::get('blog/{blog}/delete', [BlogCarouselController::class, 'destroy'])->name('blog.delete');
     Route::post('/change-status', [HomePageCarouselController::class, 'changeStatus'])->name('change.status');
     Route::post('/blog/change-status', [BlogCarouselController::class, 'changeStatus'])->name('blog.change.status');
-    Route::get('/bill/{bill}/print', [BillController::class, 'print'])->name('bills.print');
+    Route::get('/bill/{bill}/{type}/print', [BillController::class, 'print'])->name('bills.print');
 });

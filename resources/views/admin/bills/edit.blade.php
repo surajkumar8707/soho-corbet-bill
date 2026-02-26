@@ -1,146 +1,172 @@
-{{-- resources/views/admin/bills/index.blade.php --}}
 @extends('admin.layout.app')
 
 @section('content')
 <div class="container-xxl flex-grow-1 container-p-y">
-    {{-- Display Success Message --}}
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <strong>Success!</strong> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    {{-- Display Error Message --}}
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <strong>Error!</strong> {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Bills Management</h5>
-            <a href="{{ route('admin.bills.create') }}" class="btn btn-primary">
-                <i class="bx bx-plus"></i> Create New Bill
-            </a>
+            <h5 class="mb-0">Edit Bill - {{ $bill->bill_number }}</h5>
+            <a href="{{ route('admin.bills.index') }}" class="btn btn-secondary">Back</a>
         </div>
 
         <div class="card-body">
-            {{-- Search and Filter --}}
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <form action="{{ route('admin.bills.index') }}" method="GET" class="d-flex">
-                        <input type="text"
-                               name="search"
-                               class="form-control me-2"
-                               placeholder="Search by bill number, guest name, or description..."
-                               value="{{ request('search') }}">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bx bx-search"></i> Search
-                        </button>
-                        @if(request('search'))
-                            <a href="{{ route('admin.bills.index') }}" class="btn btn-secondary ms-2">
-                                <i class="bx bx-reset"></i> Clear
-                            </a>
-                        @endif
-                    </form>
-                </div>
-                <div class="col-md-6 text-end">
-                    <span class="text-muted">Total Bills: {{ $bills->total() }}</span>
-                </div>
-            </div>
-        </div>
 
-        <div class="table-responsive text-nowrap">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Bill No.</th>
-                        <th>Date</th>
-                        <th>Guest Name</th>
-                        <th>Description</th>
-                        <th>Amount</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($bills as $bill)
-                    <tr>
-                        <td><strong>{{ $bill->bill_number }}</strong></td>
-                        <td>{{ $bill->bill_date->format('d/m/Y') }}</td>
-                        <td>{{ $bill->guest_name ?? 'N/A' }}</td>
-                        <td>{{ Str::limit($bill->description, 30) }}</td>
-                        <td>₹ {{ number_format($bill->total, 2) }}</td>
-                        <td>
-                            <div class="dropdown">
-                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                    <i class="bx bx-dots-vertical-rounded"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="{{ route('admin.bills.show', $bill) }}">
-                                        <i class="bx bx-show me-1"></i> View
-                                    </a>
-                                    <a class="dropdown-item" href="{{ route('admin.bills.edit', $bill) }}">
-                                        <i class="bx bx-edit-alt me-1"></i> Edit
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="{{ route('admin.bill.download.pool', $bill) }}" target="_blank">
-                                        <i class="bx bx-file me-1"></i> Pool PDF
-                                    </a>
-                                    <a class="dropdown-item" href="{{ route('admin.bill.download.soho', $bill) }}" target="_blank">
-                                        <i class="bx bx-file me-1"></i> Soho PDF
-                                    </a>
-                                    <a class="dropdown-item" href="{{ route('admin.bills.print', $bill) }}" target="_blank">
-                                        <i class="bx bx-printer me-1"></i> Print
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <form action="{{ route('admin.bills.destroy', $bill) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="dropdown-item text-danger"
-                                                onclick="return confirm('Are you sure you want to delete bill #{{ $bill->bill_number }}? This action cannot be undone.')">
-                                            <i class="bx bx-trash me-1"></i> Delete
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="6" class="text-center py-5">
-                            <div class="text-muted mb-3">
-                                <i class="bx bx-file" style="font-size: 48px;"></i>
-                                <h5 class="mt-2">No bills found</h5>
-                                @if(request('search'))
-                                    <p>No results found for "{{ request('search') }}"</p>
-                                    <a href="{{ route('admin.bills.index') }}" class="btn btn-secondary">Clear Search</a>
-                                @else
-                                    <p>Get started by creating your first bill</p>
-                                    <a href="{{ route('admin.bills.create') }}" class="btn btn-primary">Create Your First Bill</a>
-                                @endif
-                            </div>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+            @if(session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
 
-        @if($bills->hasPages())
-        <div class="card-footer">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    Showing {{ $bills->firstItem() ?? 0 }} to {{ $bills->lastItem() ?? 0 }} of {{ $bills->total() }} entries
+            @if($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
-                <div>
-                    {{ $bills->appends(request()->query())->links() }}
+            @endif
+
+            <form action="{{ route('admin.bills.update', $bill) }}" method="POST" id="billEditForm">
+                @csrf
+                @method('PUT')
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label>Guest Name</label>
+                        <input type="text" name="guest_name" class="form-control"
+                               value="{{ old('guest_name', $bill->guest_name) }}">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Bill Date</label>
+                        <input type="date" name="bill_date" class="form-control"
+                               value="{{ old('bill_date', $bill->bill_date->format('Y-m-d')) }}">
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+                        <label>Guest Address</label>
+                        <textarea name="guest_address" class="form-control">{{ old('guest_address', $bill->guest_address) }}</textarea>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>GSTIN</label>
+                        <input type="text" name="gstin" class="form-control"
+                               value="{{ old('gstin', $bill->gstin) }}">
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+                        <label>Description</label>
+                        <input type="text" name="description" class="form-control"
+                               value="{{ old('description', $bill->description) }}">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Quantity</label>
+                        <input type="number" name="quantity" id="quantity"
+                               class="form-control"
+                               value="{{ old('quantity', $bill->quantity) }}">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Rate</label>
+                        <input type="number" step="0.01" name="rate" id="rate"
+                               class="form-control"
+                               value="{{ old('rate', $bill->rate) }}">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Other Taxes</label>
+                        <input type="number" step="0.01" name="other_taxes" id="other_taxes"
+                               class="form-control"
+                               value="{{ old('other_taxes', $bill->other_taxes) }}">
+                    </div>
                 </div>
-            </div>
+
+                {{-- GST Info --}}
+                <div class="alert alert-info">
+                    CGST: {{ $gstRates['cgst'] }}% | SGST: {{ $gstRates['sgst'] }}%
+                </div>
+
+                {{-- ✅ Calculation Preview Table (ADDED) --}}
+                <div class="card mt-3 mb-4">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">Bill Calculation Preview</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th>Subtotal:</th>
+                                        <td>₹ <span id="preview_subtotal">0.00</span></td>
+                                    </tr>
+                                    <tr>
+                                        <th>CGST ({{ $gstRates['cgst'] }}%):</th>
+                                        <td>₹ <span id="preview_cgst">0.00</span></td>
+                                    </tr>
+                                    <tr>
+                                        <th>SGST ({{ $gstRates['sgst'] }}%):</th>
+                                        <td>₹ <span id="preview_sgst">0.00</span></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Other Taxes:</th>
+                                        <td>₹ <span id="preview_other_taxes">0.00</span></td>
+                                    </tr>
+                                    <tr class="border-top">
+                                        <th>Grand Total:</th>
+                                        <td><strong>₹ <span id="preview_total">0.00</span></strong></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Update Bill
+                </button>
+
+            </form>
         </div>
-        @endif
     </div>
 </div>
+
+{{-- ✅ Live calculation JS --}}
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const quantityInput = document.getElementById('quantity');
+    const rateInput = document.getElementById('rate');
+    const otherTaxesInput = document.getElementById('other_taxes');
+
+    const cgstRate = {{ $gstRates['cgst'] }};
+    const sgstRate = {{ $gstRates['sgst'] }};
+
+    function calculatePreview() {
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const rate = parseFloat(rateInput.value) || 0;
+        const otherTaxes = parseFloat(otherTaxesInput.value) || 0;
+
+        const subtotal = quantity * rate;
+        const cgst = subtotal * (cgstRate / 100);
+        const sgst = subtotal * (sgstRate / 100);
+        const total = subtotal + cgst + sgst + otherTaxes;
+
+        document.getElementById('preview_subtotal').textContent = subtotal.toFixed(2);
+        document.getElementById('preview_cgst').textContent = cgst.toFixed(2);
+        document.getElementById('preview_sgst').textContent = sgst.toFixed(2);
+        document.getElementById('preview_other_taxes').textContent = otherTaxes.toFixed(2);
+        document.getElementById('preview_total').textContent = total.toFixed(2);
+    }
+
+    quantityInput.addEventListener('input', calculatePreview);
+    rateInput.addEventListener('input', calculatePreview);
+    otherTaxesInput.addEventListener('input', calculatePreview);
+
+    // initial load values
+    calculatePreview();
+});
+</script>
+@endpush
+
 @endsection

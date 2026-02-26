@@ -71,7 +71,7 @@
         </li> --}}
 
         <li
-            class="menu-item {{ isActiveRoute(['admin.bills.index', 'admin.bills.create', 'admin.bills.edit']) }}">
+            class="menu-item {{ isActiveRoute(['admin.bills.index', 'admin.bills.create', 'admin.bills.edit', 'admin.bill.download.pool', 'admin.bill.download.soho', 'admin.bills.print', 'admin.bills.show']) }}">
             <a href="{{ route('admin.bills.index') }}" class="menu-link">
                 <i class='menu-icon tf-icons bx bxs-carousel'></i>
                 <div data-i18n="Analytics">Bills</div>
