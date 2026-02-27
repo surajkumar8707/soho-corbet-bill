@@ -16,6 +16,15 @@ return new class extends Migration {
             $table->string('guest_name')->nullable();
             $table->string('guest_address')->nullable();
             $table->string('gstin')->nullable();
+            $table->enum('guest_document_type', [
+                'aadhar',
+                'pan',
+                'voter_id',
+                'driving_license',
+                'passport'
+            ])->nullable();
+            $table->string('guest_document_number')->nullable();
+            $table->string('guest_document_image')->nullable();
             $table->date('bill_date');
             $table->string('description');
             $table->decimal('rate', 10, 2)->default(0);

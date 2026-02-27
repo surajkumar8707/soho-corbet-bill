@@ -71,6 +71,12 @@
             padding-top: 5px;
             margin-top: 5px;
         }
+        .document-info {
+            margin: 10px 0;
+            padding: 5px;
+            border: 1px dashed #999;
+            font-size: 12px;
+        }
         .footer {
             margin-top: 30px;
             display: flex;
@@ -105,6 +111,13 @@
         <p><strong>Address:</strong> {{ $bill->guest_address ?? '____________________' }}</p>
         @if($bill->gstin)
         <p><strong>GSTIN:</strong> {{ $bill->gstin }}</p>
+        @endif
+
+        {{-- Document Information --}}
+        @if($bill->guest_document_type && $bill->guest_document_number)
+        <div class="document-info">
+            <p><strong>{{ $bill->document_type_label }}:</strong> {{ $bill->guest_document_number }}</p>
+        </div>
         @endif
     </div>
 

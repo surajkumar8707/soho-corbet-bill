@@ -15,6 +15,36 @@
                 </div>
 
                 <div class="card-body">
+                    {{-- Document Information Section --}}
+                    @if($bill->guest_document_type || $bill->guest_document_number || $bill->guest_document_image)
+                    <div class="alert alert-info mb-4">
+                        <h6 class="alert-heading fw-bold mb-3">Guest Identification Documents</h6>
+                        <div class="row">
+                            @if($bill->guest_document_type)
+                            <div class="col-md-4 mb-2">
+                                <strong>Document Type:</strong><br>
+                                <span>{{ $bill->document_type_label }}</span>
+                            </div>
+                            @endif
+
+                            @if($bill->guest_document_number)
+                            <div class="col-md-4 mb-2">
+                                <strong>Document Number:</strong><br>
+                                <span>{{ $bill->guest_document_number }}</span>
+                            </div>
+                            @endif
+
+                            @if($bill->guest_document_image)
+                            <div class="col-md-4 mb-2">
+                                <strong>Document Image:</strong><br>
+                                <a href="{{ public_asset($bill->guest_document_image) }}" target="_blank" class="btn btn-sm btn-primary mt-1">
+                                    <i class="bx bx-show"></i> View Document
+                                </a>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                    @endif
 
                     {{-- ================= SOHO CORBETT RESORT BILL ================= --}}
                     <div class="bill-preview border p-4 mb-5" style="font-family: 'Courier New', monospace;">
@@ -37,6 +67,9 @@
                             <div class="col-6">
                                 <p class="mb-1"><strong>Guest Name:</strong> {{ $bill->guest_name ?? 'N/A' }}</p>
                                 <p class="mb-1"><strong>GSTIN:</strong> {{ $bill->gstin ?? 'N/A' }}</p>
+                                @if($bill->guest_document_type && $bill->guest_document_number)
+                                <p class="mb-1"><strong>{{ $bill->document_type_label }}:</strong> {{ $bill->guest_document_number }}</p>
+                                @endif
                             </div>
                         </div>
 
@@ -106,7 +139,7 @@
                     <div class="bill-preview border p-4 mb-4" style="font-family: 'Courier New', monospace;">
                         {{-- Header --}}
                         <div class="text-center mb-4">
-                            <h3 class="mb-1">SOHO CORBETT POOL</h3>
+                            <h3 class="mb-1">POOL & COTTAGES</h3>
                             <p class="mb-0">Vill. Dharampur, Chunakhan, P.O. Bailpokhara</p>
                             <p class="mb-0">Ranmagar (Nainital) Uttarakhand</p>
                             <p class="mb-0">Mob. +9536338199</p>
@@ -123,6 +156,9 @@
                             <div class="col-6">
                                 <p class="mb-1"><strong>Guest Name:</strong> {{ $bill->guest_name ?? 'N/A' }}</p>
                                 <p class="mb-1"><strong>GSTIN:</strong> {{ $bill->gstin ?? 'N/A' }}</p>
+                                @if($bill->guest_document_type && $bill->guest_document_number)
+                                <p class="mb-1"><strong>{{ $bill->document_type_label }}:</strong> {{ $bill->guest_document_number }}</p>
+                                @endif
                             </div>
                         </div>
 

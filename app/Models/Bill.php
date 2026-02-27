@@ -15,6 +15,9 @@ class Bill extends Model
         'guest_name',
         'guest_address',
         'gstin',
+        'guest_document_type',
+        'guest_document_number',
+        'guest_document_image',
         'bill_date',
         'description',
         'rate',
@@ -35,6 +38,23 @@ class Bill extends Model
         'other_taxes' => 'decimal:2',
         'total' => 'decimal:2'
     ];
+
+    public static function getDocumentTypes()
+    {
+        return [
+            'aadhar' => 'Aadhar Card',
+            'pan' => 'PAN Card',
+            'voter_id' => 'Voter ID',
+            'driving_license' => 'Driving License',
+            'passport' => 'Passport'
+        ];
+    }
+
+    public function getDocumentTypeLabelAttribute()
+    {
+        $types = self::getDocumentTypes();
+        return $types[$this->guest_document_type] ?? 'N/A';
+    }
 
     // Generate unique bill number with counter to avoid duplicates
     public static function generateBillNumber($counter = null)

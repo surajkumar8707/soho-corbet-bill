@@ -39,7 +39,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('admin.bills.store') }}" method="POST" id="billForm">
+            <form action="{{ route('admin.bills.store') }}" method="POST" id="billForm" enctype="multipart/form-data">
                 @csrf
 
                 <div class="row">
@@ -105,6 +105,76 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                         <small class="text-muted">Format: 22AAAAA0000A1Z5</small>
+                    </div>
+
+                    {{-- Guest Identification Documents Section --}}
+                    <div class="col-12 mt-3 mb-2">
+                        <h6 class="fw-bold border-bottom pb-2">Guest Identification Documents</h6>
+                        <p class="text-muted small">Upload guest ID proof (Aadhar, PAN, Voter ID, or Driving License)</p>
+                    </div>
+
+                    {{-- Document Type --}}
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">
+                            Document Type <span class="text-muted">(Optional)</span>
+                        </label>
+                        <select name="guest_document_type"
+                                class="form-control @error('guest_document_type') is-invalid @enderror"
+                                id="guest_document_type">
+                            <option value="">Select Document Type</option>
+                            @foreach($documentTypes as $value => $label)
+                                <option value="{{ $value }}" {{ old('guest_document_type') == $value ? 'selected' : '' }}>
+                                    {{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('guest_document_type')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    {{-- Document Number --}}
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">
+                            Document Number <span class="text-muted">(Optional)</span>
+                        </label>
+                        <input type="text"
+                               name="guest_document_number"
+                               id="guest_document_number"
+                               class="form-control @error('guest_document_number') is-invalid @enderror"
+                               value="{{ old('guest_document_number') }}"
+                               placeholder="Enter document number">
+                        @error('guest_document_number')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="text-muted">Required if document type is selected</small>
+                    </div>
+
+                    {{-- Document Image Upload --}}
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">
+                            Document Image <span class="text-muted">(Optional)</span>
+                        </label>
+                        <input type="file"
+                               name="guest_document_image"
+                               id="guest_document_image"
+                               class="form-control @error('guest_document_image') is-invalid @enderror"
+                               accept="image/jpeg,image/png,image/jpg">
+                        @error('guest_document_image')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="text-muted">Max: 2MB (JPEG, PNG, JPG only)</small>
+                    </div>
+
+                    {{-- Image Preview --}}
+                    <div class="col-md-12 mb-3" id="image_preview_container" style="display: none;">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6>Document Image Preview:</h6>
+                                <img id="image_preview" src="#" alt="Document Preview" style="max-width: 200px; max-height: 200px;" class="img-thumbnail">
+                                <button type="button" class="btn btn-sm btn-danger mt-2" id="remove_image">Remove</button>
+                            </div>
+                        </div>
                     </div>
 
                     {{-- Description --}}
@@ -244,6 +314,7 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Quantity, Rate, Tax calculation
         const quantityInput = document.getElementById('quantity');
         const rateInput = document.getElementById('rate');
         const otherTaxesInput = document.getElementById('other_taxes');
@@ -275,7 +346,7 @@
         // Initial calculation
         calculatePreview();
 
-        // Client-side validation for GSTIN format
+        // GSTIN validation
         const gstinInput = document.querySelector('input[name="gstin"]');
         if (gstinInput) {
             gstinInput.addEventListener('blur', function() {
@@ -294,6 +365,72 @@
                 }
             });
         }
+
+        // Document type and number validation
+        const docTypeSelect = document.getElementById('guest_document_type');
+        const docNumberInput = document.getElementById('guest_document_number');
+
+        // function validateDocumentNumber() {
+        //     if (docTypeSelect.value && !docNumberInput.value) {
+        //         docNumberInput.classList.add('is-invalid');
+        //         if (!docNumberInput.nextElementSibling || !docNumberInput.nextElementSibling.classList.contains('invalid-feedback')) {
+        //             const errorDiv = document.createElement('div');
+        //             errorDiv.className = 'invalid-feedback';
+        //             errorDiv.textContent = 'Document number is required when document type is selected';
+        //             docNumberInput.parentNode.appendChild(errorDiv);
+        //         }
+        //     } else {
+        //         docNumberInput.classList.remove('is-invalid');
+        //     }
+        // }
+        function validateDocumentNumber() {
+            const feedback = docNumberInput.parentNode.querySelector('.invalid-feedback');
+
+            if (docTypeSelect.value && !docNumberInput.value) {
+                docNumberInput.classList.add('is-invalid');
+
+                if (feedback) {
+                    feedback.textContent = 'Document number is required when document type is selected';
+                }
+            } else {
+                docNumberInput.classList.remove('is-invalid');
+
+                if (feedback) {
+                    feedback.textContent = '';
+                }
+            }
+        }
+
+        docTypeSelect.addEventListener('change', validateDocumentNumber);
+        docNumberInput.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                this.classList.remove('is-invalid');
+            }
+        });
+
+        // Image preview
+        const imageInput = document.getElementById('guest_document_image');
+        const previewContainer = document.getElementById('image_preview_container');
+        const previewImage = document.getElementById('image_preview');
+        const removeBtn = document.getElementById('remove_image');
+
+        imageInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        removeBtn.addEventListener('click', function() {
+            imageInput.value = '';
+            previewContainer.style.display = 'none';
+            previewImage.src = '#';
+        });
     });
 </script>
 @endpush
